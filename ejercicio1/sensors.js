@@ -1,4 +1,22 @@
-class Sensor {}
+class Sensor {
+    constructor(id, name, type, value, unit, updated_at){
+        if (type !== 'temperature' && type !== 'humidity' && type !== 'pressure') {
+            throw new Error(`Tipo de sensor inválido: ${type}. Los tipos permitidos son temperature, humidity, pressure.`);
+        }
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.value = value;
+        this.unit = unit;
+        this.updated_at = updated_at;
+    }
+
+
+    updateValue(value){
+        this.value = value
+        this.updated_at = new Date();
+    }
+}
 
 class SensorManager {
     constructor() {
@@ -10,8 +28,9 @@ class SensorManager {
     }
 
     updateSensor(id) {
-        const sensor = this.sensors.find((sensor) => sensor.id === id);
-        if (sensor) {
+        const sensor = this.sensors.find((sensor) => sensor.id === id); //--Funciòn flecha: (sensor) => sensor.id === id //sensor representa la lista
+        
+        if (sensor) { 
             let newValue;
             switch (sensor.type) {
                 case "temperatura": // Rango de -30 a 50 grados Celsius
@@ -33,7 +52,29 @@ class SensorManager {
         }
     }
 
-    async loadSensors(url) {}
+    async loadSensors(url) {
+        try{
+            const response = await fetch(url);
+            if (!response.ok) {
+            throw new Error(`Error al cargar los sensores`);
+        }
+            const sensorData = await response.json();
+            this.sensors = sensorData.map(sensor => new Sensor(
+                sensor.id,
+                sensor.name,
+                sensor.type,
+                sensor.value,
+                sensor.unit,
+                new Date(sensor.updated_at)
+            ));
+            this.render();
+        }
+        catch (error) {
+            console.error(`Error al cargar los sensores: ${error.message}`);
+        }
+    
+
+    }
 
     render() {
         const container = document.getElementById("sensor-container");
@@ -88,3 +129,8 @@ class SensorManager {
 const monitor = new SensorManager();
 
 monitor.loadSensors("sensors.json");
+
+
+//fx asincrona devuelve una promesa = un objeto de clase Promise = estado actual de una operaciòn.
+//await hace que el programa se detenga y espere a que la promesa sea cumplida o rechazada.
+//await solo puede ser usardo en fx asincronas.
