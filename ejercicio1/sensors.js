@@ -133,4 +133,4 @@ monitor.loadSensors("sensors.json");
 
 //fx asincrona devuelve una promesa = un objeto de clase Promise = estado actual de una operaciòn.
 //await hace que el programa se detenga y espere a que la promesa sea cumplida o rechazada.
-//await solo puede ser usardo en fx asincronas. @
+//await solo puede ser usado en fx asincronas. 
