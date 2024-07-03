@@ -10,7 +10,7 @@ class Card {
         const cardElement = document.createElement("div");
         cardElement.classList.add("cell");
         cardElement.innerHTML = `
-          <div class="card" data-name="${this.name}">
+          <div class="card" data-name="${this.name}"> 
               <div class="card-inner">
                   <div class="card-front"></div>
                   <div class="card-back">
@@ -25,11 +25,25 @@ class Card {
     #flip() {
         const cardElement = this.element.querySelector(".card");
         cardElement.classList.add("flipped");
+        this.isFlipped = true;
     }
 
     #unflip() {
         const cardElement = this.element.querySelector(".card");
         cardElement.classList.remove("flipped");
+        this.isFlipped = false;
+    }
+
+    toggleFlip() {
+        if (this.isFlipped) {
+            this.#unflip();
+        } else {
+            this.#flip();
+        }
+    }
+
+    matches(otherCard) {
+        return this.name === otherCard.name;
     }
 }
 
@@ -74,6 +88,29 @@ class Board {
             this.onCardClick(card);
         }
     }
+
+    shuffleCards() { //algoritmo de Fisher-Yates
+        for (let i = this.cards.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]];
+        }
+    }    
+
+    flipDownAllCards() {
+        this.cards.forEach((card) => {
+            if (card.isFlipped) {
+                card.toggleFlip();
+            }
+        });
+    }
+    
+    reset() {
+        this.shuffleCards();
+        this.flipDownAllCards();
+        this.render();
+    }
+    
+
 }
 
 class MemoryGame {
@@ -102,6 +139,25 @@ class MemoryGame {
             }
         }
     }
+
+
+    checkForMatch() {
+        const [card1, card2] = this.flippedCards;
+        if (card1.matches(card2)) {
+            this.matchedCards.push(card1, card2);
+            this.flippedCards = [];
+        } else {
+            card1.toggleFlip();
+            card2.toggleFlip();
+            this.flippedCards = [];
+        }
+    }
+
+    resetGame() {
+        this.flippedCards = [];
+        this.matchedCards = [];
+        this.board.reset();
+    }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -118,10 +174,13 @@ document.addEventListener("DOMContentLoaded", () => {
         new Card(data.name, data.img),
         new Card(data.name, data.img),
     ]);
+
     const board = new Board(cards);
     const memoryGame = new MemoryGame(board, 1000);
 
     document.getElementById("restart-button").addEventListener("click", () => {
         memoryGame.resetGame();
     });
+    memoryGame.resetGame();
 });
+

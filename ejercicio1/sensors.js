@@ -1,5 +1,5 @@
 class Sensor {
-    constructor(id, name, type, value, unit, updated_at){
+    constructor(id, name, type, value, unit, updated_at) {
         if (type !== 'temperature' && type !== 'humidity' && type !== 'pressure') {
             throw new Error(`Tipo de sensor inválido: ${type}. Los tipos permitidos son temperature, humidity, pressure.`);
         }
@@ -11,9 +11,8 @@ class Sensor {
         this.updated_at = updated_at;
     }
 
-
-    updateValue(value){
-        this.value = value
+    updateValue(value) {
+        this.value = value;
         this.updated_at = new Date();
     }
 }
@@ -28,24 +27,23 @@ class SensorManager {
     }
 
     updateSensor(id) {
-        const sensor = this.sensors.find((sensor) => sensor.id === id); //--Funciòn flecha: (sensor) => sensor.id === id //sensor representa la lista
-        
-        if (sensor) { 
+        const sensor = this.sensors.find(sensor => sensor.id === id);
+        if (sensor) {
             let newValue;
             switch (sensor.type) {
-                case "temperatura": // Rango de -30 a 50 grados Celsius
+                case 'temperature':
                     newValue = (Math.random() * 80 - 30).toFixed(2);
                     break;
-                case "humedad": // Rango de 0 a 100%
+                case 'humidity':
                     newValue = (Math.random() * 100).toFixed(2);
                     break;
-                case "presion": // Rango de 960 a 1040 hPa (hectopascales o milibares)
+                case 'pressure':
                     newValue = (Math.random() * 80 + 960).toFixed(2);
                     break;
-                default: // Valor por defecto si el tipo es desconocido
+                default:
                     newValue = (Math.random() * 100).toFixed(2);
             }
-            sensor.updateValue = newValue;
+            sensor.updateValue(newValue);
             this.render();
         } else {
             console.error(`Sensor ID ${id} no encontrado`);
@@ -53,11 +51,11 @@ class SensorManager {
     }
 
     async loadSensors(url) {
-        try{
+        try {
             const response = await fetch(url);
             if (!response.ok) {
-            throw new Error(`Error al cargar los sensores`);
-        }
+                throw new Error('Error al cargar los sensores');
+            }
             const sensorData = await response.json();
             this.sensors = sensorData.map(sensor => new Sensor(
                 sensor.id,
@@ -68,67 +66,54 @@ class SensorManager {
                 new Date(sensor.updated_at)
             ));
             this.render();
-        }
-        catch (error) {
+        } catch (error) {
             console.error(`Error al cargar los sensores: ${error.message}`);
         }
-    
-
     }
 
     render() {
-        const container = document.getElementById("sensor-container");
-        container.innerHTML = "";
-        this.sensors.forEach((sensor) => {
-            const sensorCard = document.createElement("div");
-            sensorCard.className = "column is-one-third";
+        const container = document.getElementById('sensor-container');
+        container.innerHTML = '';
+        this.sensors.forEach(sensor => {
+            const sensorCard = document.createElement('div');
+            sensorCard.className = 'column is-one-third';
             sensorCard.innerHTML = `
                 <div class="card">
                     <header class="card-header">
-                        <p class="card-header-title">
-                            Sensor ID: ${sensor.id}
-                        </p>
+                        <p class="card-header-title">Sensor ID: ${sensor.id}</p>
                     </header>
                     <div class="card-content">
                         <div class="content">
-                            <p>
-                                <strong>Tipo:</strong> ${sensor.type}
-                            </p>
-                            <p>
-                               <strong>Valor:</strong> 
-                               ${sensor.value} ${sensor.unit}
-                            </p>
+                            <p><strong>Tipo:</strong> ${sensor.type}</p>
+                            <p><strong>Valor:</strong> ${sensor.value} ${sensor.unit}</p>
                         </div>
-                        <time datetime="${sensor.updated_at}">
-                            Última actualización: ${new Date(
-                                sensor.updated_at
-                            ).toLocaleString()}
+                        <time datetime="${sensor.updated_at.toISOString()}">
+                            Última actualización: ${new Date(sensor.updated_at).toLocaleString()}
                         </time>
                     </div>
                     <footer class="card-footer">
-                        <a href="#" class="card-footer-item update-button" data-id="${
-                            sensor.id
-                        }">Actualizar</a>
+                        <a href="#" class="card-footer-item update-button" data-id="${sensor.id}">Actualizar</a>
                     </footer>
                 </div>
             `;
             container.appendChild(sensorCard);
         });
 
-        const updateButtons = document.querySelectorAll(".update-button");
-        updateButtons.forEach((button) => {
-            button.addEventListener("click", (event) => {
+        const updateButtons = document.querySelectorAll('.update-button');
+        updateButtons.forEach(button => {
+            button.addEventListener('click', event => {
                 event.preventDefault();
-                const sensorId = parseInt(button.getAttribute("data-id"));
+                const sensorId = parseInt(button.getAttribute('data-id'));
                 this.updateSensor(sensorId);
             });
         });
     }
 }
 
-const monitor = new SensorManager();
-
-monitor.loadSensors("sensors.json");
+document.addEventListener('DOMContentLoaded', () => {
+    const monitor = new SensorManager();
+    monitor.loadSensors('sensors.json');
+});
 
 
 //fx asincrona devuelve una promesa = un objeto de clase Promise = estado actual de una operaciòn.

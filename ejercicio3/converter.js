@@ -95,8 +95,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 });
-/*Recorda:
-?: indica comienzo de consulta
+/*R:
+?: comienzo de consulta
 c=v
 & separa los pares clave valor*
 
